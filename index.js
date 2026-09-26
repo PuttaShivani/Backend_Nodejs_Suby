@@ -20,15 +20,22 @@ mongoose.connect(process.env.MONGO_URI)
     .catch((error) => console.log(error))
 
 app.use(bodyParser.json());
+
+// Normalize multiple slashes (e.g., //vendor/register -> /vendor/register)
+app.use((req, res, next) => {
+    req.url = req.url.replace(/\/{2,}/g, '/');
+    next();
+});
+
 app.use('/vendor', vendorRoutes);
-app.use('/firm', firmRoutes)
+app.use('/firm', firmRoutes);
 app.use('/product', productRoutes);
 app.use('/uploads', express.static('uploads'));
+
+app.get('/', (req, res) => {
+    res.send("<h1>Welcome to SUBY</h1>");
+});
 
 app.listen(PORT, () => {
     console.log(`server started and running at ${PORT}`);
 });
-
-app.use('/', (req, res) => {
-    res.send("<h1>Welcome to SUBY</h1>");
-})
